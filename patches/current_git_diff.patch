@@ -1,0 +1,119 @@
+diff --git a/model.py b/model.py
+index 101bd8c..03b7076 100644
+--- a/model.py
++++ b/model.py
+@@ -36,6 +36,9 @@ class SignLanguageModel(torch.nn.Module):
+                                       out_features=self.translation_network.input_dim,
+                                       gloss_id2str=self.gloss_tokenizer.id2gloss,
+                                       gls2embed=getattr(self.translation_network, 'gls2embed', None))
++        if model_cfg.get('freeze_non_gate', False):
++            for name, param in self.named_parameters():
++                param.requires_grad = ('stream_gate' in name)
+ 
+     def forward(self, src_input, **kwargs):
+         if self.task == "S2G":
+diff --git a/recognition.py b/recognition.py
+index 1a5f63f..ed6bd40 100644
+--- a/recognition.py
++++ b/recognition.py
+@@ -255,6 +255,25 @@ class DSTA(nn.Module):
+             num_frame = int(num_frame / stride + 0.5)
+         self.drop_out = nn.Dropout(dropout)
+ 
++        # Dynamic Weighted Stream Fusion (DWSF)
++        # The gate is disabled by default and activated through config:
++        # cfg['dynamic_fusion'] = True
++        self.dynamic_fusion = self.cfg.get('dynamic_fusion', False)
++        self.fusion_mid_dim = self.cfg.get('fusion_mid_dim', 64)
++        self.fusion_level = self.cfg.get('fusion_level', 'sequence')
++        if self.dynamic_fusion:
++            self.stream_gate = nn.Sequential(
++                nn.LayerNorm(self.out_channels * 4),
++                nn.Linear(self.out_channels * 4, self.fusion_mid_dim),
++                nn.ReLU(inplace=True),
++                nn.Linear(self.fusion_mid_dim, 4, bias=False)
++            )
++            nn.init.zeros_(self.stream_gate[-1].weight)
++        else:
++            self.stream_gate = None
++        self.last_stream_weights = None
++        self.last_stream_scales = None
++
+ 
+     def forward(self,src_input):
+         x = src_input['keypoint'].cuda()
+@@ -280,7 +299,59 @@ class DSTA(nn.Module):
+         face = face.mean(3)
+         left = left.mean(3)
+         right = right.mean(3)
+-        output = torch.cat([left, face, right, body], dim=-1)
++
++        # Optional zero-masking for robustness evaluation.
++        # This is inactive during normal training unless zero_mask_stream is set externally.
++        zero_mask_stream = getattr(self, 'zero_mask_stream', None)
++        if zero_mask_stream == 'left':
++            left = torch.zeros_like(left)
++        elif zero_mask_stream == 'face':
++            face = torch.zeros_like(face)
++        elif zero_mask_stream == 'right':
++            right = torch.zeros_like(right)
++        elif zero_mask_stream == 'body':
++            body = torch.zeros_like(body)
++
++        if self.dynamic_fusion:
++            if self.fusion_level == 'temporal':
++                # Temporal-level gate: [B, T, 4C] -> [B, T, 4]
++                gate_input = torch.cat([left, face, right, body], dim=-1)
++                stream_weights = torch.softmax(self.stream_gate(gate_input), dim=-1)
++                stream_scales = 4.0 * stream_weights
++
++                left_fuse = left * stream_scales[:, :, 0].unsqueeze(-1)
++                face_fuse = face * stream_scales[:, :, 1].unsqueeze(-1)
++                right_fuse = right * stream_scales[:, :, 2].unsqueeze(-1)
++                body_fuse = body * stream_scales[:, :, 3].unsqueeze(-1)
++
++            elif self.fusion_level == 'sequence':
++                # Sequence-level gate kept for ablation/comparison.
++                gate_input = torch.cat([
++                    left.mean(dim=1),
++                    face.mean(dim=1),
++                    right.mean(dim=1),
++                    body.mean(dim=1)
++                ], dim=-1)
++                stream_weights = torch.softmax(self.stream_gate(gate_input), dim=-1)
++                stream_scales = 4.0 * stream_weights
++
++                left_fuse = left * stream_scales[:, 0].view(N, 1, 1)
++                face_fuse = face * stream_scales[:, 1].view(N, 1, 1)
++                right_fuse = right * stream_scales[:, 2].view(N, 1, 1)
++                body_fuse = body * stream_scales[:, 3].view(N, 1, 1)
++
++            else:
++                raise ValueError(f"Unknown fusion_level: {self.fusion_level}")
++
++            self.last_stream_weights = stream_weights.detach()
++            self.last_stream_scales = stream_scales.detach()
++            output = torch.cat([left_fuse, face_fuse, right_fuse, body_fuse], dim=-1)
++        else:
++            self.last_stream_weights = None
++            self.last_stream_scales = None
++            output = torch.cat([left, face, right, body], dim=-1)
++
++        # Keep auxiliary heads unchanged for controlled comparison
+         left_output = torch.cat([left, face], dim=-1)
+         right_output = torch.cat([right,  face], dim=-1)
+         return output, left_output, right_output, body
+@@ -375,6 +446,13 @@ class Recognition(nn.Module):
+                             'right_gloss_probabilities_log': right_head['gloss_probabilities_log'],
+                             }
+ 
++            stream_weights = getattr(self.visual_backbone_keypoint, 'last_stream_weights', None)
++            stream_scales = getattr(self.visual_backbone_keypoint, 'last_stream_scales', None)
++            if stream_weights is not None:
++                head_outputs['stream_weights'] = stream_weights
++            if stream_scales is not None:
++                head_outputs['stream_scales'] = stream_scales
++
+             head_outputs['ensemble_last_gloss_probabilities_log'] = head_outputs['ensemble_last_gloss_logits'].log_softmax(2)
+             head_outputs['ensemble_last_gloss_probabilities'] = head_outputs['ensemble_last_gloss_logits'].softmax(2)
+             self.cfg['gloss_feature_ensemble'] = self.cfg.get('gloss_feature_ensemble', 'gloss_feature')
