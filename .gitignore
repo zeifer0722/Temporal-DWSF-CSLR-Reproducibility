@@ -1,0 +1,35 @@
+# Dataset and large experiment artefacts
+data/Phoenix-2014T/
+datasets/
+*.pkl
+*.pth
+*.pt
+*.ckpt
+checkpoints/
+outputs/
+run_logs/
+
+# Secrets and credentials
+.env
+*.pem
+*.key
+credentials*
+secrets/
+.aws/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Notebook / IDE / OS
+.ipynb_checkpoints/
+.DS_Store
+.idea/
+.vscode/
+
+# Generated thesis outputs
+thesis_figures/
+thesis_tables/
+final_thesis_assets/
