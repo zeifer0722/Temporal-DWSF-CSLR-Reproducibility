@@ -12,7 +12,7 @@ The final recorded experiments were run on:
 - Python 3.13.14;
 - PyTorch 2.11.0+cu130 with CUDA acceleration.
 
-Weights & Biases was disabled for the retained final runs.
+Weights & Biases was disabled for the retained final runs. The retained Python version, `pip freeze`, AWS instance note and `nvidia-smi` snapshot are provided under `environment/`.
 
 ## 2. Dataset and task
 
@@ -130,7 +130,7 @@ Using the inherited evaluation routine:
 
 The mean Temporal DWSF advantage over the matched sequence-level gate is 0.4540 WER percentage points.
 
-## 11. Analysis pipeline
+## 11. Analysis pipeline and retained tables
 
 The `analysis/` directory contains scripts for:
 
@@ -143,4 +143,6 @@ The `analysis/` directory contains scripts for:
 - qualitative sample selection and alignment plotting;
 - Sample 3258 keypose export.
 
-Some scripts require retained source CSVs or local dataset files that are not yet included in the lightweight public repository. Their expected paths are documented directly in the scripts.
+Compact source and derived result tables are provided under `data/`, with runnable-path copies of the core result tables under `final_tables/` and `multiseed_data/`. These cover the numerical results reported in the dissertation, including the matched-seed WER comparison, zero-mask results, parameter-efficiency table, mean temporal-scale statistics, qualitative error counts, sample-outcome counts and final qualitative/temporal example selections.
+
+Three retained artefact classes are intentionally not redistributed: the RWTH-PHOENIX-Weather 2014T dataset, checkpoint binaries, and the larger raw diagnostic exports (the full prediction CSVs and approximately 4 MB frame-level temporal-scale CSV). Consequently, the aggregate/selection analyses are inspectable from this repository, while complete regeneration of the qualitative and temporal-trajectory analyses requires the retained local evidence bundle or equivalent raw exports.
