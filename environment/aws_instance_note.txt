@@ -1,0 +1,6 @@
+AWS instance used for experiments:
+- Region: eu-west-2 London
+- Instance type: g4dn.xlarge
+- GPU: NVIDIA Tesla T4
+- Dataset: PHOENIX-2014T
+- Task: Sign-to-Gloss recognition
