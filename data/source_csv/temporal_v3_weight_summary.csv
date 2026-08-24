@@ -1,0 +1,5 @@
+stream,mean_weight,global_std_weight,mean_temporal_std_weight,mean_scale,mean_temporal_std_scale
+left,0.242327,0.005512,0.005294,0.969309,0.021176
+face,0.253132,0.003940,0.003977,1.012529,0.015906
+right,0.242426,0.005042,0.005002,0.969703,0.020007
+body,0.262114,0.004130,0.004015,1.048457,0.016061
