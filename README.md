@@ -4,7 +4,7 @@ Public reproducibility materials for the MSc dissertation **“Temporal Dynamic 
 
 ## Repository purpose
 
-This repository provides the dissertation-specific experimental configurations, implementation patch and analysis scripts used to support the reported results for **Temporal Dynamic Weighted Stream Fusion (Temporal DWSF)**.
+This repository provides the dissertation-specific experimental configurations, retained implementation patch, analysis scripts, compact source/derived result tables and environment records used to support the reported results for **Temporal Dynamic Weighted Stream Fusion (Temporal DWSF)**.
 
 The work builds on the public **MSKA: Multi-Stream Keypoint Attention Network for Sign Language Recognition and Translation** implementation:
 
@@ -32,6 +32,7 @@ Temporal DWSF achieved a mean 0.45 WER-percentage-point advantage over the param
 ├── README.md
 ├── REPRODUCIBILITY.md
 ├── NOTICE.md
+├── .gitignore
 ├── configs/
 │   └── final/
 │       ├── sequence_gate.yaml
@@ -39,17 +40,31 @@ Temporal DWSF achieved a mean 0.45 WER-percentage-point advantage over the param
 │       └── full_model_continuation.yaml
 ├── patches/
 │   └── current_git_diff.patch
-└── analysis/
-    ├── README.md
-    ├── build_final_results_master.py
-    ├── build_parameter_efficiency_table.py
-    ├── build_appendix_seed_table.py
-    ├── plot_controlled_wer_multiseed.py
-    ├── plot_zero_mask.py
-    ├── plot_temporal_examples.py
-    ├── analyse_qualitative_predictions.py
-    ├── export_sample_3258_keyposes.py
-    └── plot_qualitative_alignments.py
+├── analysis/
+│   ├── README.md
+│   ├── build_final_results_master.py
+│   ├── build_parameter_efficiency_table.py
+│   ├── build_appendix_seed_table.py
+│   ├── plot_controlled_wer_multiseed.py
+│   ├── plot_zero_mask.py
+│   ├── plot_temporal_examples.py
+│   ├── analyse_qualitative_predictions.py
+│   ├── export_sample_3258_keyposes.py
+│   └── plot_qualitative_alignments.py
+├── data/
+│   ├── README.md
+│   ├── source_csv/
+│   └── derived_tables/
+├── final_tables/
+├── multiseed_data/
+│   └── experiment_records/multiseed_gateonly/
+├── environment/
+│   ├── python_version.txt
+│   ├── pip_freeze.txt
+│   ├── aws_instance_note.txt
+│   └── nvidia_smi.txt
+└── evidence/
+    └── checkpoint_sha256.txt
 ```
 
 ## Core implementation change
@@ -73,17 +88,23 @@ The sequence-level comparator averages the encoded temporal dimension before the
 
 The retained MSKA configuration key for the 79-keypoint fourth stream is `body`. In the dissertation this is described as the **composite stream**, because its selected indices are exactly the union of the left-hand, face and right-hand selected keypoint sets. The original configuration key is retained here for fidelity to the experiment records.
 
-## Data and checkpoints
+## Included experimental evidence
+
+The repository includes compact source and derived tables for the reported WER, matched-seed comparison, parameter-efficiency analysis, stream-removal analysis, mean temporal-scale statistics, per-head verification for the retained e25/seed-0 checkpoints, final temporal-example selection and final qualitative sample selection. See [`data/README.md`](data/README.md).
+
+## Data and checkpoints not redistributed
 
 The following are not redistributed in this repository:
 
-- RWTH-PHOENIX-Weather 2014T data;
+- RWTH-PHOENIX-Weather 2014T dataset files;
 - pre-extracted dataset files and `gloss2ids.pkl`;
 - trained `.pth` / `.pt` / `.ckpt` checkpoints;
 - AWS credentials, SSH keys or other secrets;
+- the full per-sample prediction exports used by the qualitative analysis;
+- the approximately 4 MB frame-level temporal-scale export used for Figure 4.3;
 - large local experiment-output directories.
 
-Complete rerunning therefore requires legitimate access to the dataset and the required starting checkpoints.
+Complete rerunning of training therefore requires legitimate access to the dataset and required starting checkpoints. The compact retained tables allow the reported dissertation values and deterministic selections to be inspected without redistributing those larger artefacts.
 
 ## Reproducibility notes
 
@@ -91,4 +112,4 @@ See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) for the retained environment, con
 
 ## Public reproducibility scope
 
-This repository is intended to make the dissertation-specific contribution and analysis pipeline inspectable without republishing the complete upstream MSKA codebase. The exact retained implementation changes are available in [`patches/current_git_diff.patch`](patches/current_git_diff.patch).
+This repository is intended to make the dissertation-specific contribution and analysis pipeline inspectable without republishing the complete upstream MSKA codebase. The retained implementation changes are available in [`patches/current_git_diff.patch`](patches/current_git_diff.patch).
