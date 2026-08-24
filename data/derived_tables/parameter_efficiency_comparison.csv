@@ -1,0 +1,5 @@
+method,evaluation_runs,total_model_parameters,additional_gate_parameters,parameters_updated_in_stage,updated_parameter_share_percent,additional_epochs,mean_additional_training_time,test_wer,wer_improvement_over_e25,comparison_role
+Baseline e25 (fixed reference),1,44159272,0,0,0.0,0,—,31.7445,0.0000,Fixed checkpoint reference; no additional adaptation
+Sequence-level gate,3,44227176,67904,67904,0.15353455983714628,5,00:39:51,31.5098 ± 0.1242,0.2347,Gate-only adaptation; three matched random seeds
+Temporal DWSF v3,3,44227176,67904,67904,0.15353455983714628,5,00:39:37,31.0558 ± 0.0358,0.6887,Temporal gate-only adaptation; three matched random seeds
+Baseline e30 (full-model continuation),1,44159272,0,44159272,100.0,5,02:24:47,30.6175,1.1270,Full-model continued training; single control run
