@@ -1,0 +1,3 @@
+model,substitutions,deletions,insertions,total_errors,reference_tokens,wer_percent
+Baseline e25,626,649,77,1352,4259,31.74454097205917
+Temporal DWSF v3 seed 0,646,586,89,1321,4259,31.016670579948347
