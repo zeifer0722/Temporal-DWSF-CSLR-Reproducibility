@@ -1,7 +1,0 @@
-method,seed,test_wer,test_loss,training_time,log_file
-Sequence gate,0,31.3689,58.699,0:39:46,run_logs/dwsf_seq_from_e25_gateonly_e5_bs2_20260710_0940.log
-Temporal DWSF v3,0,31.0167,58.733,0:39:42,run_logs/dwsf_v3_from_e25_gateonly_e5_bs2_20260709_1614.log
-Sequence gate,123,31.6037,58.527,0:39:48,run_logs/sequence_gate_seed123_20260727_1047.log
-Temporal DWSF v3,123,31.0636,58.618,0:39:32,run_logs/temporal_v3_seed123_20260727_1128.log
-Sequence gate,3407,31.5567,59.053,0:39:59,run_logs/sequence_gate_seed3407_20260727_1208.log
-Temporal DWSF v3,3407,31.0871,59.105,0:39:36,run_logs/temporal_v3_seed3407_20260727_1248.log
