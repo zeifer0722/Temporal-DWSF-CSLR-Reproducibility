@@ -1,8 +1,0 @@
-model,gate_level,training_setup,test_wer,test_loss,key_finding
-Baseline e20,none,full model training,33.8812,63.4668,initial fixed-fusion baseline
-DWSF v1 e20,"[B,4]",from scratch,35.4309,66.0260,naive softmax collapsed into near-global weighting
-DWSF v2 e20,"[B,4]",from scratch,34.5386,65.3700,identity-preserving sequence gate improved over v1
-Baseline e25,none,continued full-model training,31.7445,58.4210,baseline improves with additional training
-Sequence gate from e25,"[B,4]",gate-only e5,31.3689,58.6990,clip-level gate improves e25 baseline
-Temporal DWSF v3 from e25,"[B,T,4]",gate-only e5,31.0167,58.7331,temporal gate outperforms sequence gate under same setup
-Baseline e30,none,continued full-model training,30.6175,57.1063,best absolute WER
