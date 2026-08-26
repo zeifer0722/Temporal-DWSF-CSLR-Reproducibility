@@ -1,5 +1,7 @@
 # Dataset and large experiment artefacts
 data/Phoenix-2014T/
+data/external/
+data/raw_diagnostics/
 datasets/
 *.pkl
 *.pth
@@ -29,7 +31,8 @@ venv/
 .idea/
 .vscode/
 
-# Generated thesis outputs
+# Generated reproducibility outputs
+generated/
 thesis_figures/
 thesis_tables/
 final_thesis_assets/
