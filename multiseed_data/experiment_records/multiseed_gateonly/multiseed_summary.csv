@@ -1,3 +1,0 @@
-method,n_seeds,mean_test_wer,sample_sd_test_wer,minimum_test_wer,maximum_test_wer,mean_improvement_over_e25
-Sequence gate,3,31.509766666666668,0.12423692419459398,31.3689,31.6037,0.23473333333333102
-Temporal DWSF v3,3,31.0558,0.035842293453404825,31.0167,31.0871,0.6886999999999972
