@@ -1,10 +1,10 @@
 # Temporal DWSF for Skeleton-Based Continuous Sign Language Recognition
 
-Public reproducibility materials for the MSc dissertation **“Temporal Dynamic Weighted Stream Fusion for Skeleton-Based Continuous Sign Language Recognition”**, University of Bristol, 2026.
+Public reproducibility materials for the MSc dissertation **Temporal Dynamic Weighted Stream Fusion for Skeleton-Based Continuous Sign Language Recognition**, University of Bristol, 2026.
 
 ## Repository purpose
 
-This repository provides the dissertation-specific experimental configurations, retained implementation patch, analysis scripts, compact source/derived result tables and environment records used to support the reported results for **Temporal Dynamic Weighted Stream Fusion (Temporal DWSF)**.
+This repository provides the dissertation-specific experimental configurations, retained implementation patch, analysis scripts, compact source and derived result tables, environment records, and validation checks used to support the reported results for **Temporal Dynamic Weighted Stream Fusion (Temporal DWSF)**.
 
 The work builds on the public **MSKA: Multi-Stream Keypoint Attention Network for Sign Language Recognition and Translation** implementation:
 
@@ -14,13 +14,13 @@ The complete MSKA source code is **not redistributed here**. Instead, this repos
 
 ## Main controlled comparison
 
-The final comparison starts from the same fixed 25-epoch MSKA checkpoint (e25) and adapts only the added stream gate for five epochs under matched seeds `0`, `123` and `3407`.
+The final comparison starts from the same fixed 25-epoch MSKA checkpoint (e25) and adapts only the added stream gate for five epochs under matched seeds `0`, `123`, and `3407`.
 
 | Condition | Reported test WER |
 |---|---:|
 | Fixed e25 reference | 31.74% |
-| Sequence-level gate | 31.51% ± 0.12 |
-| Temporal DWSF | **31.06% ± 0.04** |
+| Sequence-level gate | 31.51% +/- 0.12 |
+| Temporal DWSF | **31.06% +/- 0.04** |
 | Full-model continuation to e30 | 30.62% |
 
 Temporal DWSF achieved a mean 0.45 WER-percentage-point advantage over the parameter-matched sequence-level gate. The gate contains 67,904 gradient-updated parameters, approximately 0.154% of the gated model. Full-model continuation retained the best absolute WER and is treated as a contextual reference rather than a parameter-matched comparator.
@@ -33,6 +33,10 @@ Temporal DWSF achieved a mean 0.45 WER-percentage-point advantage over the param
 ├── REPRODUCIBILITY.md
 ├── NOTICE.md
 ├── .gitignore
+├── .github/
+│   └── workflows/repository-check.yml
+├── tools/
+│   └── repository_sanity_check.py
 ├── configs/
 │   └── final/
 │       ├── sequence_gate.yaml
@@ -55,9 +59,6 @@ Temporal DWSF achieved a mean 0.45 WER-percentage-point advantage over the param
 │   ├── README.md
 │   ├── source_csv/
 │   └── derived_tables/
-├── final_tables/
-├── multiseed_data/
-│   └── experiment_records/multiseed_gateonly/
 ├── environment/
 │   ├── python_version.txt
 │   ├── pip_freeze.txt
@@ -73,11 +74,11 @@ The retained patch adds a lightweight four-stream gate after the MSKA stream enc
 
 ```text
 LayerNorm(4C)
-→ Linear(4C, 64)
-→ ReLU
-→ Linear(64, 4, bias=False)
-→ Softmax
-→ ×4
+-> Linear(4C, 64)
+-> ReLU
+-> Linear(64, 4, bias=False)
+-> Softmax
+-> x4
 ```
 
 The final layer is zero-initialised. Equal logits therefore yield Softmax proportions `[0.25, 0.25, 0.25, 0.25]`, which become applied scales `[1, 1, 1, 1]` after multiplication by four. This preserves the original fixed-fusion representation at gate insertion.
@@ -86,11 +87,24 @@ The sequence-level comparator averages the encoded temporal dimension before the
 
 ## Naming note
 
-The retained MSKA configuration key for the 79-keypoint fourth stream is `body`. In the dissertation this is described as the **composite stream**, because its selected indices are exactly the union of the left-hand, face and right-hand selected keypoint sets. The original configuration key is retained here for fidelity to the experiment records.
+The retained MSKA configuration key for the 79-keypoint fourth stream is `body`. In the dissertation this is described as the **composite stream**, because its selected indices are exactly the union of the left-hand, face, and right-hand selected keypoint sets. The original configuration key is retained here for fidelity to the experiment records.
+
+Some source tables and experiment-directory names retain the internal development label `v3`. These identifiers are preserved where required to trace the exact experiment records. Dissertation-facing labels use **Temporal DWSF**.
 
 ## Included experimental evidence
 
-The repository includes compact source and derived tables for the reported WER, matched-seed comparison, parameter-efficiency analysis, stream-removal analysis, mean temporal-scale statistics, per-head verification for the retained e25/seed-0 checkpoints, final temporal-example selection and final qualitative sample selection. See [`data/README.md`](data/README.md).
+The repository includes compact source and derived tables for:
+
+- developmental and final WER results;
+- the three matched-seed gate comparison;
+- parameter-efficiency analysis;
+- stream-removal analysis;
+- mean temporal-scale statistics;
+- retained per-head verification for e25 and seed-0 Temporal DWSF;
+- final temporal-example selection;
+- edit-error counts, sample outcomes, and final qualitative sample selection.
+
+See [`data/README.md`](data/README.md) for the exact public data scope.
 
 ## Data and checkpoints not redistributed
 
@@ -98,17 +112,29 @@ The following are not redistributed in this repository:
 
 - RWTH-PHOENIX-Weather 2014T dataset files;
 - pre-extracted dataset files and `gloss2ids.pkl`;
-- trained `.pth` / `.pt` / `.ckpt` checkpoints;
-- AWS credentials, SSH keys or other secrets;
-- the full per-sample prediction exports used by the qualitative analysis;
+- trained `.pth`, `.pt`, or `.ckpt` checkpoints;
+- AWS credentials, SSH keys, or other secrets;
+- the two full per-sample prediction exports used by the qualitative analysis;
 - the approximately 4 MB frame-level temporal-scale export used for Figure 4.3;
 - large local experiment-output directories.
 
-Complete rerunning of training therefore requires legitimate access to the dataset and required starting checkpoints. The compact retained tables allow the reported dissertation values and deterministic selections to be inspected without redistributing those larger artefacts.
+Complete rerunning of training therefore requires legitimate access to the dataset, required starting checkpoints, and the upstream MSKA codebase. The compact retained tables allow the reported dissertation values and deterministic selections to be inspected without redistributing those larger artefacts.
+
+## Analysis and generated outputs
+
+Scripts that depend only on committed compact tables run directly from this repository. They write reproduced figures and tables to the ignored `generated/` directory. Analyses that require larger retained diagnostics use documented local paths under `data/raw_diagnostics/`; the keypose exporter accepts the PHOENIX test-file location through the `PHOENIX_TEST_FILE` environment variable.
+
+See [`analysis/README.md`](analysis/README.md) for exact input requirements.
+
+## Automated validation
+
+`tools/repository_sanity_check.py` verifies the principal numerical anchors, final configuration fields, core implementation-patch fragments, common credential patterns, and repository text for CJK characters. GitHub Actions runs this check and compiles the Python sources on every push and pull request.
+
+This means the public repository is automatically guarded against accidental numerical drift, syntax errors, credential publication, and accidental inclusion of Chinese/CJK text.
 
 ## Reproducibility notes
 
-See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) for the retained environment, controlled configuration details, training/evaluation behaviour and known implementation limitations.
+See [`REPRODUCIBILITY.md`](REPRODUCIBILITY.md) for the retained environment, controlled configuration details, training and evaluation behaviour, and known implementation limitations.
 
 ## Public reproducibility scope
 
