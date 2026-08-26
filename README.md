@@ -33,8 +33,6 @@ Temporal DWSF achieved a mean 0.45 WER-percentage-point advantage over the param
 ├── REPRODUCIBILITY.md
 ├── NOTICE.md
 ├── .gitignore
-├── .github/
-│   └── workflows/repository-check.yml
 ├── tools/
 │   └── repository_sanity_check.py
 ├── configs/
@@ -65,7 +63,9 @@ Temporal DWSF achieved a mean 0.45 WER-percentage-point advantage over the param
 │   ├── aws_instance_note.txt
 │   └── nvidia_smi.txt
 └── evidence/
-    └── checkpoint_sha256.txt
+    ├── README.md
+    ├── checkpoint_sha256.txt
+    └── checkpoint_manifest.csv
 ```
 
 ## Core implementation change
@@ -104,6 +104,8 @@ The repository includes compact source and derived tables for:
 - final temporal-example selection;
 - edit-error counts, sample outcomes, and final qualitative sample selection.
 
+Checkpoint hashes and their experimental roles are documented under [`evidence/`](evidence/), including the legacy retained path used for the fixed e25 starting reference.
+
 See [`data/README.md`](data/README.md) for the exact public data scope.
 
 ## Data and checkpoints not redistributed
@@ -126,11 +128,28 @@ Scripts that depend only on committed compact tables run directly from this repo
 
 See [`analysis/README.md`](analysis/README.md) for exact input requirements.
 
-## Automated validation
+## Repository validation
 
-`tools/repository_sanity_check.py` verifies the principal numerical anchors, final configuration fields, core implementation-patch fragments, common credential patterns, and repository text for CJK characters. GitHub Actions runs this check and compiles the Python sources on every push and pull request.
+`tools/repository_sanity_check.py` provides a submission-oriented validation pass. It checks:
 
-This means the public repository is automatically guarded against accidental numerical drift, syntax errors, credential publication, and accidental inclusion of Chinese/CJK text.
+- required reproducibility files;
+- accidental inclusion of restricted dataset/checkpoint/archive files;
+- CJK characters in repository paths and committed text files;
+- common credential and private-key patterns;
+- Python syntax;
+- personal absolute paths in Python sources;
+- principal WER, multi-seed, stream-removal, temporal-scale, qualitative, and checkpoint-evidence anchors;
+- matched sequence-level and Temporal DWSF configurations, allowing only the intended condition-specific `model_dir` and `fusion_level` differences;
+- core implementation fragments in the retained patch;
+- final dissertation-facing terminology.
+
+The check can be run from the repository root with:
+
+```bash
+python tools/repository_sanity_check.py
+```
+
+This validation script is kept inside the public repository so the submission checks remain inspectable and reproducible without relying on repository-specific CI settings.
 
 ## Reproducibility notes
 
