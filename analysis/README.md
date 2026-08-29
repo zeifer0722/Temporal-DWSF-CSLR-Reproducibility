@@ -69,4 +69,4 @@ The following local scripts were superseded and are not part of the public repos
 
 ## Repository validation
 
-`tools/repository_sanity_check.py` verifies the submitted numerical anchors, required configuration fields, core implementation-patch fragments, absence of common credential patterns, and absence of CJK characters in repository text files. The same check and Python source compilation are run automatically by the GitHub Actions workflow on pushes and pull requests.
+`tools/repository_sanity_check.py` verifies the submitted numerical anchors, required configuration fields, core implementation-patch fragments, absence of common credential patterns, and absence of CJK characters in repository text files. Run `python tools/repository_sanity_check.py` from the repository root to perform the submission-oriented validation, including Python syntax, numerical-anchor, credential-pattern, restricted-file, and CJK-text checks.
