@@ -161,4 +161,4 @@ Three larger retained diagnostic files are not currently committed: the frame-le
 - common credential and private-key patterns;
 - CJK characters in repository text files.
 
-GitHub Actions runs this sanity check and compiles the Python sources on every push and pull request. This provides an automated guard against numerical drift, accidental credential publication, syntax errors, and accidental inclusion of Chinese/CJK text in the submitted repository.
+Run the validation from the repository root with `python tools/repository_sanity_check.py`. The script checks the committed numerical anchors, configuration consistency, Python syntax, common credential patterns, restricted file types, and accidental inclusion of Chinese/CJK text.
